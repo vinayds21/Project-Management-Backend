@@ -17,5 +17,5 @@ For more info about setup - http://www.django-rest-framework.org/tutorial/1-seri
 
 # Model Migrations
 
-python manage.py makemigrations AppName
-python manage.py migrate AppName
+1. python manage.py makemigrations AppName
+2. python manage.py migrate AppName
