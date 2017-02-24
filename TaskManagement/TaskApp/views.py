@@ -9,6 +9,7 @@ from django.db.models import Count, F, Sum
 
 from datetime import datetime
 from TaskApp.models import *
+from TaskManagement.utils import *
 
 class ProjectView(View):
     ''''''
@@ -27,71 +28,137 @@ class ProjectView(View):
         params = request.POST
         #self.response['data'] = params
         # print params
-        project_data = {
-            'project_name':params.get('name'),
-            'description':params.get('description'),
-            'status':params.get('status'),
-        }
-        Project.objects.create(**project_data)
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                project_data = {
+                    'project_name':params.get('name'),
+                    'description':params.get('description'),
+                    'status':params.get('status'),
+                }
+                Project.objects.create(**project_data)
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect post request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
     def put(self, request, *args, **kwargs):
         ''''''
         # import pdb; pdb.set_trace()
         params = QueryDict(request.body)
         # self.response['data'] = params
-        print params
-        project_id = params.get('project_id')
-        project = Project.objects.get(pk=project_id)
-        # print project
-        if params.get('name'):
-            project.project_name = params.get('name')
-        if params.get('description'):
-            project.description = params.get('description')
-        if params.get('status'):
-            project.status = params.get('status')
-        project.save()
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                project_id = params.get('project_id')
+                project = Project.objects.get(pk=project_id)
+                # print project
+                if params.get('name'):
+                    project.project_name = params.get('name')
+                if params.get('description'):
+                    project.description = params.get('description')
+                if params.get('status'):
+                    project.status = params.get('status')
+                project.save()
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
     def delete(self, request, *args, **kwargs):
         ''''''
         # import pdb; pdb.set_trace()
         params = QueryDict(request.body)
         # self.response['data'] = params
-        print params
-        project_id = params.get('project_id')
-        project = Project.objects.get(pk=project_id)
-        # print project
-        if params.get('status') == '3':
-            project.status = params.get('status')
-        project.save()
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                project_id = params.get('project_id')
+                project = Project.objects.get(pk=project_id)
+                # print project
+                if params.get('status') == '3':
+                    project.status = params.get('status')
+                project.save()
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400) 
 
     def get(self, request, *args, **kwrags):
     	''''''
     	params = request.GET
-    	pid = params.get('project_id')
-    	project = Project.objects.get(pk=pid)
-        tasks = Task.objects.filter(project=project)
-        #a = list()
-        tasks_data = []
-        for task in tasks:
-            tasks_data.append({
-                'name': task.task_name,
-                'id': task.id,
-                'description': task.description,
-                })
-        # project_data = project._seraliser()
-    	project_data = {
-    		'name': project.project_name,
-    		'description': project.description,
-            'tasks': tasks_data,
-            'created_by':'',
-            'status': project.status,
-            'id':project.id,
-    	}
-    	self.response = project_data
-    	return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+            	pid = params.get('project_id')
+            	project = Project.objects.get(pk=pid)
+                tasks = Task.objects.filter(project=project)
+                #a = list()
+                tasks_data = []
+                for task in tasks:
+                    tasks_data.append({
+                        'name': task.task_name,
+                        'id': task.id,
+                        'description': task.description,
+                        })
+                # project_data = project._seraliser()
+            	project_data = {
+            		'name': project.project_name,
+            		'description': project.description,
+                    'tasks': tasks_data,
+                    'created_by':'',
+                    'status': project.status,
+                    'id':project.id,
+            	}
+            	self.response = project_data
+            	return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
 class TaskView(View):
     ''''''
@@ -108,77 +175,145 @@ class TaskView(View):
         ''''''
         # import pdb; pdb.set_trace()
         params = request.POST
-        project = Project.objects.get(pk=params.get('project_id'))
-        #self.response['data'] = params
-        # print params
-        task_data = {
-            'task_name':params.get('name'),
-            'description':params.get('description'),
-            'status':params.get('status'),
-            'project_id':params.get('project_id'),
-            'task_type':params.get('task_type'),
-        }
-        Task.objects.create(**task_data)
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                project = Project.objects.get(pk=params.get('project_id'))
+                #self.response['data'] = params
+                # print params
+                task_data = {
+                    'task_name':params.get('name'),
+                    'description':params.get('description'),
+                    'status':params.get('status'),
+                    'project_id':params.get('project_id'),
+                    'task_type':params.get('task_type'),
+                }
+                Task.objects.create(**task_data)
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
     def put(self, request, *args, **kwargs):
         ''''''
         # import pdb; pdb.set_trace()
         params = QueryDict(request.body)
         # self.response['data'] = params
-        task_id = params.get('task_id')
-        task = Task.objects.get(pk=task_id)
-        project = Project.objects.get(pk=params.get('project_id'))
-        # print project
-        if params.get('name'):
-            task.task_name = params.get('name')
-        if params.get('description'):
-            task.description = params.get('description')
-        if params.get('status'):
-            task.status = params.get('status')
-        if params.get('project'):
-            task.project_id = params.get('project_id')
-        if params.get('task_type'):
-            task.task_type = params.get('task_type')
-            # task.project = project
-        task.save()
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                task_id = params.get('task_id')
+                task = Task.objects.get(pk=task_id)
+                project = Project.objects.get(pk=params.get('project_id'))
+                # print project
+                if params.get('name'):
+                    task.task_name = params.get('name')
+                if params.get('description'):
+                    task.description = params.get('description')
+                if params.get('status'):
+                    task.status = params.get('status')
+                if params.get('project'):
+                    task.project_id = params.get('project_id')
+                if params.get('task_type'):
+                    task.task_type = params.get('task_type')
+                    # task.project = project
+                task.save()
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
     def delete(self, request, *args, **kwargs):
         ''''''
         # import pdb; pdb.set_trace()
         params = QueryDict(request.body)
         # self.response['data'] = params
-        task_id = params.get('task_id')
-        task = Task.objects.get(pk=task_id)
-        # print project
-        if params.get('status') == '6':
-            task.status = params.get('status')
-        task.save()
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                task_id = params.get('task_id')
+                task = Task.objects.get(pk=task_id)
+                # print project
+                if params.get('status') == '6':
+                    task.status = params.get('status')
+                task.save()
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
     def get(self, request, *args, **kwrags):
         ''''''
         params = request.GET
-        tid = params.get('task_id')
-        task = Task.objects.get(pk=tid)
-        project = task.project
-        project_dict = {
-            'name':project.project_name,
-            'id':project.id
-        }
-        # import pdb; pdb.set_trace()
-        task_data = {
-            'name': task.task_name,
-            'description': task.description,
-            'created_by':'',
-            'status': task.status,
-            'id':task.id,
-            'project':project_dict,
-            'task_type':task.task_type,
-        }
-        self.response = task_data
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                tid = params.get('task_id')
+                task = Task.objects.get(pk=tid)
+                project = task.project
+                project_dict = {
+                    'name':project.project_name,
+                    'id':project.id
+                }
+                # import pdb; pdb.set_trace()
+                task_data = {
+                    'name': task.task_name,
+                    'description': task.description,
+                    'created_by':'',
+                    'status': task.status,
+                    'id':task.id,
+                    'project':project_dict,
+                    'task_type':task.task_type,
+                }
+                self.response = task_data
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
 class ProjectStatus(View):
     ''''''
@@ -197,12 +332,29 @@ class ProjectStatus(View):
         params = request.POST
         #self.response['data'] = params
         # print params
-        project_id = params.get('project_id')
-        project = Project.objects.get(pk=project_id)
-        if params.get('status'):
-            project.status = params.get('status')
-        project.save()
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                project_id = params.get('project_id')
+                project = Project.objects.get(pk=project_id)
+                if params.get('status'):
+                    project.status = params.get('status')
+                project.save()
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 
 class TaskStatus(View):
     ''''''
@@ -221,9 +373,26 @@ class TaskStatus(View):
         params = request.POST
         #self.response['data'] = params
         # print params
-        task_id = params.get('task_id')
-        task = Task.objects.get(pk=task_id)
-        if params.get('status'):
-            task.status = params.get('status')
-        task.save()
-        return JsonResponse(self.response, status=200)
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                task_id = params.get('task_id')
+                task = Task.objects.get(pk=task_id)
+                if params.get('status'):
+                    task.status = params.get('status')
+                task.save()
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Incorrect request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
