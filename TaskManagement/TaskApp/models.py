@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-
+from UserApp.models import Organization
 # Create your models here.
 
 class BaseModel(models.Model):
@@ -23,6 +23,7 @@ class Project(BaseModel):
 		3 : 'Deleted'
 	}
 	project_name = models.CharField(max_length=255)
+	organization = models.ForeignKey(Organization)
 	description = models.TextField()
 	status = models.SmallIntegerField(default=0)
 

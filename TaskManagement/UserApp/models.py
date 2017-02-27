@@ -2,9 +2,17 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.core.validators import URLValidator
-from TaskApp.models import BaseModel
 
 # Create your models here.
+class BaseModel(models.Model):
+	created_on = models.DateTimeField(auto_now_add = True, db_index=True, \
+									verbose_name='created_on', null=True, blank=True)
+	updated_on = models.DateTimeField(auto_now = True, db_index=True, \
+									verbose_name='updated_on', null=True, blank=True)
+	is_deleted = models.BooleanField(default=False, verbose_name='deleted')
+
+	class Meta:
+		abstract = True
 
 class Organization(BaseModel):
 	''''''

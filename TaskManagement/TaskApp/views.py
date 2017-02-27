@@ -160,6 +160,53 @@ class ProjectView(View):
             }
             return JsonResponse(self.response, status=400)
 
+class OrgProjectView(View):
+    ''''''
+    def __init__(self):
+        ''''''
+        self.response = {
+            'data': 'Done'
+        }
+
+    def dispatch(self, *args, **kwargs):
+        return super(self.__class__, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        ''''''
+        params = request.GET
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                org_id = params.get('org_id')
+                org = Organization.objects.get(pk=org_id)
+                projects = Project.objects.filter(organization=org)
+                data = list()
+                for project in projects:
+                    data.append({
+                            'project_name':project.project_name,
+                            'project_desc':project.description,
+                            'project_status':project.status
+                        })
+                self.response = {
+                    'res_str':'Success',
+                    'res_data':data
+                }
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception as e:
+            self.response = {
+                'res_str':'Invalid request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
+
 class TaskView(View):
     ''''''
     def __init__(self):

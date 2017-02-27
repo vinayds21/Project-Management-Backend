@@ -295,6 +295,57 @@ class UserView(View):
             }
             return JsonResponse(self.response, status=400)
 
+class OrgUsersView(View):
+    ''''''
+    def __init__(self):
+        ''''''
+        self.response = {
+            'data': 'Done'
+        }
+
+    def dispatch(self, *args, **kwargs):
+        return super(self.__class__, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        ''''''
+        params = request.GET
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            data = list()
+            if access_bit == True:
+                org_id = params.get('org_id')
+                org = Organization.objects.get(pk=org_id)
+                users = User.objects.filter(organization=org)
+                for user in users:
+                    data.append({
+                            'first_name': user.first_name,
+                            'last_name': user.last_name,
+                            'user_mobile': user.user_mobile,
+                            'user_mail': user.user_mail,
+                            'user_designation':user.user_designation,
+                            'user_type':user.user_type,
+                            'user_id':user.id
+                        })
+                self.response = {
+                    'res_str':'Success',
+                    'res_data':data
+                }
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception:
+            self.response = {
+                'res_str':'Invalid request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
+
 class LoginView(View):
     ''''''
     def __init__(self):
@@ -369,7 +420,6 @@ class LogoutView(View):
 
     def post(self, request, *args, **kwargs):
         ''''''
-        params = request.POST
         try:
             token = request.META.get('HTTP_REQUEST_TOKEN')
             mobile = request.META.get('HTTP_UID')
@@ -379,7 +429,7 @@ class LogoutView(View):
                 user.token = ''
                 user.save()
                 self.response = {
-                    'res_str':'Logout suceess!',
+                    'res_str':'Logout suceess! See you soon',
                     'res_data':{}
                 }
                 return JsonResponse(self.response, status=200)
@@ -389,7 +439,7 @@ class LogoutView(View):
                     'res_data':{}
                 }
                 return JsonResponse(self.response, status=403)
-        except User.DoesNotExists as ex:
+        except Exception:
             self.response = {
                 'res_str':'Invalid request',
                 'res_data':{}
