@@ -278,7 +278,7 @@ class TaskView(View):
                 if params.get('task_type'):
                     task.task_type = params.get('task_type')
                 if params.get('user_id'):
-                    task.task_type = params.get('user_id')
+                    task.user_id = params.get('user_id')
                     # task.project = project
                 task.save()
                 return JsonResponse(self.response, status=200)
