@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from UserApp.models import Organization
+from UserApp.models import Organization, User
 # Create your models here.
 
 class BaseModel(models.Model):
@@ -62,6 +62,7 @@ class Task(BaseModel):
 	status = models.SmallIntegerField(default=0)
 	task_type = models.SmallIntegerField(default=0)
 	project = models.ForeignKey(Project)
+	user = models.ForeignKey(User)
 
 	class Meta:
 		db_table = 'task'

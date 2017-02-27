@@ -236,6 +236,7 @@ class TaskView(View):
                     'status':params.get('status'),
                     'project_id':params.get('project_id'),
                     'task_type':params.get('task_type'),
+                    'user_id':params.get('user_id')
                 }
                 Task.objects.create(**task_data)
                 return JsonResponse(self.response, status=200)
@@ -276,6 +277,8 @@ class TaskView(View):
                     task.project_id = params.get('project_id')
                 if params.get('task_type'):
                     task.task_type = params.get('task_type')
+                if params.get('user_id'):
+                    task.task_type = params.get('user_id')
                     # task.project = project
                 task.save()
                 return JsonResponse(self.response, status=200)
@@ -346,6 +349,7 @@ class TaskView(View):
                     'id':task.id,
                     'project':project_dict,
                     'task_type':task.task_type,
+                    'user_id':task.user_id
                 }
                 self.response = task_data
                 return JsonResponse(self.response, status=200)
