@@ -355,3 +355,43 @@ class LoginView(View):
                 'res_data':{}
             }
             return JsonResponse(self.response, status=400)
+
+class LogoutView(View):
+    ''''''
+    def __init__(self):
+        ''''''
+        self.response = {
+            'data': 'Done'
+        }
+
+    def dispatch(self, *args, **kwargs):
+        return super(self.__class__, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        ''''''
+        params = request.POST
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                user = User.objects.get(user_mobile=mobile)
+                user.token = ''
+                user.save()
+                self.response = {
+                    'res_str':'Logout suceess!',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except User.DoesNotExists as ex:
+            self.response = {
+                'res_str':'Invalid request',
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
