@@ -340,6 +340,12 @@ class TaskView(View):
                     'name':project.project_name,
                     'id':project.id
                 }
+                user = task.user
+                user_dict = {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'user_id': user.pk
+                }
                 # import pdb; pdb.set_trace()
                 task_data = {
                     'name': task.task_name,
@@ -349,7 +355,7 @@ class TaskView(View):
                     'id':task.id,
                     'project':project_dict,
                     'task_type':task.task_type,
-                    'user_id':task.user_id
+                    'user':user_dict
                 }
                 self.response = task_data
                 return JsonResponse(self.response, status=200)
@@ -359,9 +365,9 @@ class TaskView(View):
                     'res_data':{}
                 }
                 return JsonResponse(self.response, status=403)
-        except Exception:
+        except Exception, ex:
             self.response = {
-                'res_str':'Incorrect request',
+                'res_str': str(ex),
                 'res_data':{}
             }
             return JsonResponse(self.response, status=400)
