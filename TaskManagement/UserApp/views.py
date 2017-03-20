@@ -47,7 +47,7 @@ class OrganizationView(View):
                 'res_data': res_data_obj
             }
             return JsonResponse(self.response, status=200)
-        except Organization.DoesNotExists as ex:
+        except Exception as ex:
             self.response = {
                 'res_str':'Incorrect post request',
                 'res_data':{}
@@ -202,7 +202,8 @@ class UserView(View):
                         'res_data':{}
                     }
                     return JsonResponse(self.response, status=403)
-            except Exception:
+            except Exception as ex:
+                print str(ex)
                 self.response = {
                     'res_str':'Invalid request',
                     'res_data':{}
@@ -339,7 +340,7 @@ class OrgUsersView(View):
                     'res_data':{}
                 }
                 return JsonResponse(self.response, status=403)
-        except Exception:
+        except Exception as ex:
             self.response = {
                 'res_str':'Invalid request',
                 'res_data':{}
@@ -375,7 +376,7 @@ class LoginView(View):
             hash_user_password = self.gen_password_hash(params.get('password'))
             try:
                 user = User.objects.get(user_mobile=mobile)
-            except User.DoesNotExists as ex:
+            except Exception as ex:
                 self.response = {
                     'res_str':'This mobile number is not registered',
                     'res_data':{}
