@@ -10,4 +10,5 @@ urlpatterns = [
 	url(r'^v1/projectstatus/$', csrf_exempt(ProjectStatus.as_view())),
     url(r'^v1/taskstatus/$', csrf_exempt(TaskStatus.as_view())),
 	url(r'^v1/orgproject/$', csrf_exempt(OrgProjectView.as_view())),
+    url(r'^v1/usertasks/$', csrf_exempt(UserTasks.as_view())),
 ]

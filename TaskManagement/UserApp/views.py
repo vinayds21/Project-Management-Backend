@@ -289,7 +289,7 @@ class UserView(View):
                     'res_data':{}
                 }
                 return JsonResponse(self.response, status=403)
-        except User.DoesNotExists as ex:
+        except Exception as ex:
             self.response = {
                 'res_str':'Invalid request',
                 'res_data':{}
@@ -391,7 +391,9 @@ class LoginView(View):
                     'res_str':'Login successful',
                     'res_data':{
                         'token':user.token,
-                        'uid':user.user_mobile
+                        'uid':user.user_mobile,
+                        'org_id':user.organization.id,
+                        'user_id':user.pk
                     }
                 }
                 return JsonResponse(self.response, status=200)

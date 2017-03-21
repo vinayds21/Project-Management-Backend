@@ -27,16 +27,21 @@ class ProjectView(View):
         # import pdb; pdb.set_trace()
         params = request.POST
         #self.response['data'] = params
-        # print params
+        print params
+        print request.META.get('HTTP_REQUEST_TOKEN')
+        print request.META.get('HTTP_UID')
         try:
             token = request.META.get('HTTP_REQUEST_TOKEN')
             mobile = request.META.get('HTTP_UID')
             access_bit = token_authentication(token,mobile)
+            print access_bit
             if access_bit == True:
+                org = Organization.objects.get(pk=params.get('org_id'))
                 project_data = {
                     'project_name':params.get('name'),
                     'description':params.get('description'),
                     'status':params.get('status'),
+                    'organization':org,
                 }
                 Project.objects.create(**project_data)
                 return JsonResponse(self.response, status=200)
@@ -46,7 +51,7 @@ class ProjectView(View):
                     'res_data':{}
                 }
                 return JsonResponse(self.response, status=403)
-        except Exception:
+        except Exception as ex:
             self.response = {
                 'res_str':'Incorrect post request',
                 'res_data':{}
@@ -187,7 +192,8 @@ class OrgProjectView(View):
                     data.append({
                             'project_name':project.project_name,
                             'project_desc':project.description,
-                            'project_status':project.status
+                            'project_status':project.status,
+                            'id':project.pk
                         })
                 self.response = {
                     'res_str':'Success',
@@ -372,6 +378,67 @@ class TaskView(View):
             }
             return JsonResponse(self.response, status=400)
 
+class UserTasks(View):
+    ''''''
+    def __init__(self):
+        ''''''
+        self.response = {
+            'data': 'Done'
+        }
+
+    def dispatch(self, *args, **kwargs):
+        return super(self.__class__, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwrags):
+        ''''''
+        params = request.GET
+        try:
+            token = request.META.get('HTTP_REQUEST_TOKEN')
+            mobile = request.META.get('HTTP_UID')
+            access_bit = token_authentication(token,mobile)
+            if access_bit == True:
+                uid = params.get('user_id')
+                tasks = Task.objects.filter(user_id = uid)
+                
+                # user = task.user
+                # user_dict = {
+                #     'first_name': user.first_name,
+                #     'last_name': user.last_name,
+                #     'user_id': user.pk
+                # }
+                # import pdb; pdb.set_trace()
+                tasks_list = list()
+                for task in tasks:
+                    project = task.project
+                    project_dict = {
+                        'name':project.project_name,
+                        'id':project.id
+                    }
+                    task_data = {
+                        'name': task.task_name,
+                        'description': task.description,
+                        'created_by':'',
+                        'status': task.status,
+                        'id':task.id,
+                        'project':project_dict,
+                        'task_type':task.task_type,
+                        #'user':user_dict
+                    }
+                    tasks_list.append(task_data)
+                self.response['data'] = tasks_list
+                return JsonResponse(self.response, status=200)
+            else:
+                self.response = {
+                    'res_str':'Permission denied',
+                    'res_data':{}
+                }
+                return JsonResponse(self.response, status=403)
+        except Exception, ex:
+            self.response = {
+                'res_str': str(ex),
+                'res_data':{}
+            }
+            return JsonResponse(self.response, status=400)
 class ProjectStatus(View):
     ''''''
     def __init__(self):
