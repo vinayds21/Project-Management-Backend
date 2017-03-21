@@ -20,7 +20,8 @@ class Project(BaseModel):
 		0 : 'Open',
 		1 : 'In Progress',
 		2 : 'Completed',
-		3 : 'Deleted'
+		3 : 'Blocked',
+		4 : 'In Production',
 	}
 	project_name = models.CharField(max_length=255)
 	organization = models.ForeignKey(Organization)
@@ -49,7 +50,7 @@ class Task(BaseModel):
 		3 : 'In QA',
 		4 : 'Testing Done',
 		5 : 'In Production',
-		6 : 'Deleted'
+		6 : 'Blocked'
 	}
 
 	TYPE_DICT ={
