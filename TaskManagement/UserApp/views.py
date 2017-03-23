@@ -140,6 +140,17 @@ class UserView(View):
     def post(self, request, *args, **kwargs):
         ''''''
         params = request.POST
+        try:
+            User.objects.get(user_mobile = params.get('user_mobile'))
+            raise AssertionError('Mobile number already exists')
+            #assert 'a'  = 'b', 'Mobile number already exists'
+        except AssertionError as ex:
+            self.response = {
+                    'res_str': str(ex),
+                    'res_data':{}
+                }
+            return JsonResponse(self.response, status=400)
+            
         if params.get('first_user_bit'):
             try:
                 org = Organization.objects.get(pk=params.get('org_id'))
