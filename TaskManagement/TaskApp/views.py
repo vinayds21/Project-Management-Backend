@@ -27,7 +27,7 @@ class ProjectView(View):
         # import pdb; pdb.set_trace()
         params = request.POST
         #self.response['data'] = params
-        print params
+        #print params
         print request.META.get('HTTP_REQUEST_TOKEN')
         print request.META.get('HTTP_UID')
         try:

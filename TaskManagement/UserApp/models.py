@@ -42,7 +42,7 @@ class User(BaseModel):
 
 	first_name = models.CharField(max_length=255)
 	last_name = models.CharField(max_length=255)
-	user_mobile = models.CharField(max_length=10, unique=True, editable=False)
+	user_mobile = models.CharField(max_length=10, unique=True)
 	user_mail = models.CharField(max_length=255)
 	user_designation = models.CharField(max_length=255)
 	user_type = models.SmallIntegerField(default=0)
