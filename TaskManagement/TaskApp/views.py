@@ -38,7 +38,7 @@ class ProjectView(View):
             if access_bit == True:
                 org = Organization.objects.get(pk=params.get('org_id'))
                 project_data = {
-                    'project_name':params.get('name'),
+                    'project_name':params.get('project_name'),
                     'description':params.get('description'),
                     'status':params.get('status'),
                     'organization':org,
@@ -52,6 +52,7 @@ class ProjectView(View):
                 }
                 return JsonResponse(self.response, status=403)
         except Exception as ex:
+            print str(ex)
             self.response = {
                 'res_str':'Incorrect post request',
                 'res_data':{}
@@ -71,8 +72,8 @@ class ProjectView(View):
                 project_id = params.get('project_id')
                 project = Project.objects.get(pk=project_id)
                 # print project
-                if params.get('name'):
-                    project.project_name = params.get('name')
+                if params.get('project_name'):
+                    project.project_name = params.get('project_name')
                 if params.get('description'):
                     project.description = params.get('description')
                 if params.get('status'):
@@ -140,6 +141,10 @@ class ProjectView(View):
                         'name': task.task_name,
                         'id': task.id,
                         'description': task.description,
+                        'status': task.status,
+                        'task_type':task.task_type,
+                        'user_name':task.user.get_name,
+                        'user_id': task.user.pk
                         })
                 # project_data = project._seraliser()
             	project_data = {
@@ -400,20 +405,23 @@ class UserTasks(View):
                 uid = params.get('user_id')
                 tasks = Task.objects.filter(user_id = uid)
                 
-                # user = task.user
-                # user_dict = {
-                #     'first_name': user.first_name,
-                #     'last_name': user.last_name,
-                #     'user_id': user.pk
-                # }
+                
                 # import pdb; pdb.set_trace()
                 tasks_list = list()
                 for task in tasks:
+
+                    user = task.user
+                    user_dict = {
+                        'name': user.get_name,
+                        'user_id': user.pk
+                    }
+
                     project = task.project
                     project_dict = {
                         'name':project.project_name,
                         'id':project.id
                     }
+                    
                     task_data = {
                         'name': task.task_name,
                         'description': task.description,
@@ -422,7 +430,7 @@ class UserTasks(View):
                         'id':task.id,
                         'project':project_dict,
                         'task_type':task.task_type,
-                        #'user':user_dict
+                        'user':user_dict
                     }
                     tasks_list.append(task_data)
                 self.response['data'] = tasks_list
