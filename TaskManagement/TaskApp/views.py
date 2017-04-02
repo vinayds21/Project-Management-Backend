@@ -404,8 +404,6 @@ class UserTasks(View):
             if access_bit == True:
                 uid = params.get('user_id')
                 tasks = Task.objects.filter(user_id = uid)
-                
-                
                 # import pdb; pdb.set_trace()
                 tasks_list = list()
                 for task in tasks:
@@ -447,6 +445,7 @@ class UserTasks(View):
                 'res_data':{}
             }
             return JsonResponse(self.response, status=400)
+
 class ProjectStatus(View):
     ''''''
     def __init__(self):
